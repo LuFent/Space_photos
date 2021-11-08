@@ -1,4 +1,3 @@
-import pathlib
 from urllib.parse import urlparse
 from pathlib import Path
 

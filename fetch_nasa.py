@@ -1,4 +1,3 @@
-import pathlib
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 from pathlib import Path
