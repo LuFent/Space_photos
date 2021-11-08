@@ -24,17 +24,30 @@ def main():
     chat_id = "@space_imgs"
     bot = telegram.Bot(token=tg_token)
 
+    sent_photos = []
     file_num = 0
 
     while True:
-        filename = files[file_num]
+        try:
+            filename = files[file_num]
 
-        path = os.path.join(folder, filename)
-        with open(path, 'rb') as file:
-            bot.send_document(chat_id=chat_id, document=file)
+            path = os.path.join(folder, filename)
+            with open(path, 'rb') as file:
+                bot.send_document(chat_id=chat_id, document=file)
 
-        file_num += 1
-        sleep(delay)
+            sent_photos.append(filename)
+            file_num += 1
+            sleep(delay)
+
+        except IndexError:
+            new_files = list(set(listdir(folder)).difference(set(files), set(sent_photos)))
+            
+            if new_files:
+                files = new_files
+                file_num = 0
+            else:
+                print("У бота закончились фотографии")
+                break
 
 
 if __name__ == "__main__":
