@@ -11,12 +11,10 @@ import sys
 
 
 def get_file_extension(path):
-
     return os.path.splitext(urlparse(path).path)[1]
 
 
 def download_pic(dir, url):
-
     response = requests.get(url)
     response.raise_for_status()
 
@@ -24,55 +22,32 @@ def download_pic(dir, url):
         file.write(response.content)
 
 
-def fetch_spacex_last_launch():
-
-    url = "https://api.spacexdata.com/v4/launches/"
-    response = requests.get(url).json()[130]
-    image_urls = response["links"]["flickr"]["original"]
-
+def download_nasa_APOD_images(NASA_API):
+    count_of_pictures = 30
+    url = "https://api.nasa.gov/planetary/apod"
+    params = {"api_key": NASA_API,
+              "count": count_of_pictures}
+    images_data = requests.get(url, params=params).json()
     index = 0
-    folder = "spacex_images"
+    folder = "images"
 
-    for url in image_urls:
+    for pic_data in images_data:
         index += 1
 
-        filename = f"spacex_image_{index}.jpg"
-        file_path = os.path.join(folder, filename)
+        url = pic_data["url"]
+
+        file_name = f"apod_image_{index}{get_file_extension(url)}"
+        file_path = os.path.join(folder, file_name)
 
         download_pic(file_path, url)
 
 
-
-
-def download_nasa_APOD_images(NASA_API):
-
-    url = "https://api.nasa.gov/planetary/apod"
-    params = {"api_key": NASA_API,
-              "count": 10}
-    images_data = requests.get(url, params=params).json()
-    index = 0
-    folder = "nasa_apod_images"
-
-    for pic_data in images_data:
-        url = pic_data["url"]
-
-        if get_file_extension(url) == ".jpg" or get_file_extension(url) == ".png":
-            index += 1
-
-            file_name = f"apod_image_{index}{get_file_extension(url)}"
-            file_path = os.path.join(folder, file_name)
-
-            download_pic(file_path, url)
-
-
-
 def download_nasa_EPIC_images(NASA_API):
-
     url = "https://api.nasa.gov/EPIC/api/natural/images"
     params = {"api_key": NASA_API}
     images_data = requests.get(url, params=params).json()
     index = 0
-    folder = "nasa_epic_images"
+    folder = "images"
 
     for pic_data in images_data:
         index += 1
@@ -91,8 +66,10 @@ def main():
     load_dotenv()
     nasa_api_token = os.getenv("NASA_API_TOKEN")
 
+    folder = "images"
+    Path(folder).mkdir(parents=True, exist_ok=True)
+
     download_nasa_EPIC_images(nasa_api_token)
-    fetch_spacex_last_launch()
     download_nasa_APOD_images(nasa_api_token)
 
 
