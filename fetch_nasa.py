@@ -1,6 +1,8 @@
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 from pathlib import Path
+from general_funcs import get_file_extension
+from general_funcs import download_pic
 
 import datetime
 import requests
@@ -9,30 +11,15 @@ import os
 import sys
 
 
-def get_file_extension(path):
-    return os.path.splitext(urlparse(path).path)[1]
-
-
-def download_pic(dir, url):
-    response = requests.get(url)
-    response.raise_for_status()
-
-    with open(dir, 'wb') as file:
-        file.write(response.content)
-
-
-def download_nasa_APOD_images(NASA_API):
-    count_of_pictures = 30
+def download_nasa_APOD_images(nasa_api, folder, count_of_pictures=30):
     url = "https://api.nasa.gov/planetary/apod"
-    params = {"api_key": NASA_API,
+    params = {"api_key": nasa_api,
               "count": count_of_pictures}
-    images_data = requests.get(url, params=params).json()
-    index = 0
-    folder = "images"
+    images_data = requests.get(url, params=params)
+    images_data.raise_for_status()
+    images_data = images_data.json()
 
-    for pic_data in images_data:
-        index += 1
-
+    for index, pic_data in enumerate(images_data):
         url = pic_data["url"]
 
         file_name = f"apod_image_{index}{get_file_extension(url)}"
@@ -41,21 +28,19 @@ def download_nasa_APOD_images(NASA_API):
         download_pic(file_path, url)
 
 
-def download_nasa_EPIC_images(NASA_API):
+def download_nasa_EPIC_images(nasa_api, folder):
     url = "https://api.nasa.gov/EPIC/api/natural/images"
-    params = {"api_key": NASA_API}
-    images_data = requests.get(url, params=params).json()
-    index = 0
-    folder = "images"
+    params = {"api_key": nasa_api}
+    images_data = requests.get(url, params=params)
+    images_data.raise_for_status()
+    images_data = images_data.json()
 
-    for pic_data in images_data:
-        index += 1
-
+    for index, pic_data in enumerate(images_data):
         data = datetime.datetime.strptime(pic_data["date"], '%Y-%m-%d %H:%M:%S')
-        prepared_data = f"{data.year}/{str(data.month).zfill(2)}/{str(data.day).zfill(2)}"
-        name = pic_data["image"]
+        prepared_data = data.strftime('%Y/%m/%d')
 
-        url = f"https://api.nasa.gov/EPIC/archive/natural/{prepared_data}/png/{name}.png?api_key={NASA_API}"
+        name = pic_data["image"]
+        url = f"https://api.nasa.gov/EPIC/archive/natural/{prepared_data}/png/{name}.png?api_key={nasa_api}"
         filename = f"epic_image_{index}.png"
         file_path = os.path.join(folder, filename)
         download_pic(file_path, url)
@@ -68,9 +53,5 @@ def main():
     folder = "images"
     Path(folder).mkdir(parents=True, exist_ok=True)
 
-    download_nasa_EPIC_images(nasa_api_token)
-    download_nasa_APOD_images(nasa_api_token)
-
-
-if __name__ == "__main__":
-    main()
+    download_nasa_EPIC_images(nasa_api_token, folder)
+    download_nasa_APOD_images(nasa_api_token, folder)

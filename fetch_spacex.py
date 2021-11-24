@@ -1,39 +1,26 @@
+import sys
 from urllib.parse import urlparse
 from pathlib import Path
+from general_funcs import download_pic
 
 import requests
 import os
 
 
-def download_pic(dir, url):
+def fetch_spacex_last_launch(amount_of_photos, folder):
+    url = "https://api.spacexdata.com/v4/launches/"
     response = requests.get(url)
     response.raise_for_status()
+    response = response.json()
 
-    with open(dir, 'wb') as file:
-        file.write(response.content)
+    for i in response:
+        if len(i["links"]["flickr"]["original"]) >= amount_of_photos:
+            image_urls = i["links"]["flickr"]["original"]
+            break
 
-
-def fetch_spacex_last_launch():
-    url = "https://api.spacexdata.com/v4/launches/"
-    response = requests.get(url).json()[130]
-    image_urls = response["links"]["flickr"]["original"]
-
-    index = 0
-    folder = "images"
     Path(folder).mkdir(parents=True, exist_ok=True)
 
-    for url in image_urls:
-        index += 1
-
+    for index, url in enumerate(image_urls):
         filename = f"spacex_image_{index}.jpg"
         file_path = os.path.join(folder, filename)
-
         download_pic(file_path, url)
-
-
-def main():
-    fetch_spacex_last_launch()
-
-
-if __name__ == "__main__":
-    main()
