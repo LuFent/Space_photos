@@ -18,8 +18,6 @@ def fetch_spacex_last_launch(amount_of_photos, folder):
             image_urls = i["links"]["flickr"]["original"]
             break
 
-    Path(folder).mkdir(parents=True, exist_ok=True)
-
     for index, url in enumerate(image_urls):
         filename = f"spacex_image_{index}.jpg"
         file_path = os.path.join(folder, filename)
