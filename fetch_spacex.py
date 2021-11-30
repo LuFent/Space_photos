@@ -1,6 +1,3 @@
-import sys
-from urllib.parse import urlparse
-from pathlib import Path
 from general_funcs import download_pic
 
 import requests

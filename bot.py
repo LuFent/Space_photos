@@ -26,12 +26,12 @@ def main():
     fetch_nasa.download_nasa_apod_images(nasa_api_token, folder)
     fetch_nasa.download_nasa_epic_images(nasa_api_token, folder)
 
-    files = listdir(folder)
-    shuffle(files)
+    file_names = listdir(folder)
+    shuffle(file_names)
     bot = telegram.Bot(token=tg_token)
 
-    for file in files:
-        path = os.path.join(folder, file)
+    for file_name in file_names:
+        path = os.path.join(folder, file_name)
         with open(path, 'rb') as file:
             bot.send_document(chat_id=chat_id, document=file)
 

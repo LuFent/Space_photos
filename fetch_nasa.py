@@ -1,4 +1,3 @@
-from pathlib import Path
 from general_funcs import get_file_extension
 from general_funcs import download_pic
 
