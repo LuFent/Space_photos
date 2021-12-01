@@ -25,7 +25,7 @@ def main():
     fetch_spacex.fetch_spacex_last_launch(amount_of_spacex_photos, folder)
     fetch_nasa.download_nasa_apod_images(nasa_api_token, folder)
     fetch_nasa.download_nasa_epic_images(nasa_api_token, folder)
-
+    print("Скачивание завершенно")
     file_names = listdir(folder)
     shuffle(file_names)
     bot = telegram.Bot(token=tg_token)
