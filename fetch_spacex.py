@@ -5,14 +5,17 @@ import os
 
 
 def fetch_spacex_last_launch(amount_of_photos, folder):
+    if amount_of_photos > 25:
+        amount_of_photos = 25
+
     url = "https://api.spacexdata.com/v4/launches/"
     response = requests.get(url)
     response.raise_for_status()
-    response = response.json()
+    flights = response.json()
 
-    for i in response:
-        if len(i["links"]["flickr"]["original"]) >= amount_of_photos:
-            image_urls = i["links"]["flickr"]["original"]
+    for flight in flights:
+        if len(flight["links"]["flickr"]["original"]) >= amount_of_photos:
+            image_urls = flight["links"]["flickr"]["original"]
             break
 
     for index, url in enumerate(image_urls):
